@@ -1,0 +1,14 @@
+Parallel Trends Summary (Pre-Treatment Period)
+------------------------------------------------
+Pre-period window: -151 to 28
+
+Mean mobility levels (summary stats):
+treated    Control    Treated
+count    29.000000  29.000000
+mean     -0.301724  -1.629310
+std       4.438760   7.542031
+min     -19.750000 -36.500000
+25%      -1.000000  -2.750000
+50%       1.250000   0.500000
+75%       2.000000   2.250000
+max       3.000000   3.750000

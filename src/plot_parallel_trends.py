@@ -20,10 +20,13 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "data/processed/panel_mobility.csv"
+OUTPUT_DIR = PROJECT_ROOT / "output"
+PLOT_PATH = OUTPUT_DIR / "parallel_trends.png"
+
 PRE_DAYS = 180
+
 
 def main() -> None:
     """
@@ -39,6 +42,8 @@ def main() -> None:
     Raises:
         FileNotFoundError: If preprocessed data doesn't exist
     """
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
     if not DATA_PATH.exists():
         raise FileNotFoundError(f"Missing processed file: {DATA_PATH.resolve()}. Run preprocess.py first.")
 
@@ -61,8 +66,16 @@ def main() -> None:
     ax.set_title("Parallel Trends Check (Pre-Treatment Only)")
     ax.set_ylabel("Workplaces % Change from Baseline")
     ax.set_xlabel("Days since start")
+
     plt.tight_layout()
+
+    # ---- Save plot as image ----
+    plt.savefig(PLOT_PATH, dpi=300)
+
+    print(f"✅ Parallel trends plot saved to: {PLOT_PATH.resolve()}")
+
     plt.show()
+
 
 if __name__ == "__main__":
     main()
