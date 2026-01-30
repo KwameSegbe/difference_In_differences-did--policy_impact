@@ -1,3 +1,20 @@
+"""
+Data Preprocessing: COVID-19 Mobility Panel Dataset
+----------------------------------------------------
+This script transforms Google's COVID-19 Community Mobility Reports into a clean
+panel dataset suitable for difference-in-differences analysis.
+
+Input:  Raw Google mobility data (state-level, daily observations)
+Output: Preprocessed panel with columns needed for Callaway-Sant'Anna estimator
+
+Treatment definition:
+- Treated: States that implemented stay-at-home orders on March 15, 2020
+  (New York, California, New Jersey, Washington)
+- Control: States that did not implement orders at that time
+  (Texas, Florida, Georgia, South Dakota)
+
+Outcome: Workplace mobility (% change from pre-COVID baseline)
+"""
 from pathlib import Path
 import pandas as pd
 
@@ -16,6 +33,29 @@ POLICY_DATE = pd.Timestamp("2020-03-15")
 
 
 def main() -> None:
+    """
+    Preprocess Google mobility data into panel format for DiD analysis.
+    
+    Processing steps:
+    1. Load raw Google mobility data
+    2. Filter to US state-level observations only
+    3. Keep only treated and control states
+    4. Create treatment indicators (treated, post, first_treat)
+    5. Convert dates to integer time periods
+    6. Save cleaned panel dataset
+    
+    Output columns:
+    - unit: State name
+    - date: Calendar date
+    - outcome: Workplace mobility (% change from baseline)
+    - treated: 1 if state received treatment, 0 otherwise
+    - post: 1 if date is on/after March 15, 0 otherwise
+    - time: Integer days since first date in dataset (0, 1, 2, ...)
+    - first_treat: Time period when treatment starts (policy_time for treated, 0 for control)
+    
+    Raises:
+        FileNotFoundError: If raw Google mobility data doesn't exist
+    """
     if not CSV_PATH.exists():
         raise FileNotFoundError(f"Missing file: {CSV_PATH.resolve()}")
 
