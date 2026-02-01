@@ -53,11 +53,11 @@ def main() -> None:
     policy_time = int(df.loc[df["first_treat"] > 0, "first_treat"].iloc[0])
     pre_start = policy_time - PRE_DAYS
 
-    trend = df.groupby(["time", "treated"], as_index=False)["outcome"].mean()
+    trend = df.groupby(["time", "ever_treated"], as_index=False)["outcome"].mean()
     trend_pre = trend[(trend["time"] >= pre_start) & (trend["time"] < policy_time)].copy()
 
     pivot = (
-        trend_pre.pivot(index="time", columns="treated", values="outcome")
+        trend_pre.pivot(index="time", columns="ever_treated", values="outcome")
         .rename(columns={0: "Control", 1: "Treated"})
         .sort_index()
     )

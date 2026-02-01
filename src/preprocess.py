@@ -15,6 +15,7 @@ Treatment definition:
 
 Outcome: Workplace mobility (% change from pre-COVID baseline)
 """
+# 
 from pathlib import Path
 import pandas as pd
 
@@ -29,32 +30,27 @@ Y_COL = "workplaces_percent_change_from_baseline"
 TREATED_STATES = ["New York", "California", "New Jersey", "Washington"]
 CONTROL_STATES = ["Texas", "Florida", "Georgia", "South Dakota"]
 
-POLICY_DATE = pd.Timestamp("2020-03-15")
+# State-specific adoption dates (EDIT THESE to the correct policy start dates you want)
+POLICY_DATES = {
+    "New York": pd.Timestamp("2020-03-22"),
+    "California": pd.Timestamp("2020-03-19"),
+    "New Jersey": pd.Timestamp("2020-03-21"),
+    "Washington": pd.Timestamp("2020-03-23"),
+}
 
 
 def main() -> None:
     """
-    Preprocess Google mobility data into panel format for DiD analysis.
-    
-    Processing steps:
-    1. Load raw Google mobility data
-    2. Filter to US state-level observations only
-    3. Keep only treated and control states
-    4. Create treatment indicators (treated, post, first_treat)
-    5. Convert dates to integer time periods
-    6. Save cleaned panel dataset
-    
-    Output columns:
+    Preprocess Google mobility data into panel format for staggered DiD (Callaway-Sant'Anna / Sun-Abraham).
+
+    Key outputs:
     - unit: State name
     - date: Calendar date
     - outcome: Workplace mobility (% change from baseline)
-    - treated: 1 if state received treatment, 0 otherwise
-    - post: 1 if date is on/after March 15, 0 otherwise
+    - treated: time-varying treatment indicator (1 if date >= that state's policy date, else 0; always 0 for controls)
+    - post: alias for treated (kept for readability)
     - time: Integer days since first date in dataset (0, 1, 2, ...)
-    - first_treat: Time period when treatment starts (policy_time for treated, 0 for control)
-    
-    Raises:
-        FileNotFoundError: If raw Google mobility data doesn't exist
+    - first_treat: first treated time period per unit (0 for never-treated controls; >=1 for treated states)
     """
     if not CSV_PATH.exists():
         raise FileNotFoundError(f"Missing file: {CSV_PATH.resolve()}")
@@ -78,25 +74,40 @@ def main() -> None:
         columns={"sub_region_1": "unit", "date": "date", Y_COL: "outcome"}
     )
 
-    df["treated"] = df["unit"].isin(TREATED_STATES).astype(int)
-    df["post"] = (df["date"] >= POLICY_DATE).astype(int)
-
     # Integer time index (days since start)
     t0 = df["date"].min()
     df["time"] = (df["date"] - t0).dt.days
 
-    policy_time = int((POLICY_DATE - t0).days)
+    # Map each unit to its policy date (controls get NaT)
+    df["policy_date"] = df["unit"].map(POLICY_DATES)
 
-    # diff-diff expects first_treat: 0 for never-treated, else first treated period
-    df["first_treat"] = df["treated"].apply(lambda x: policy_time if x == 1 else 0)
+    # first_treat: 0 for never-treated controls, else days-from-t0 of that state's policy date
+    df["first_treat"] = (df["policy_date"] - t0).dt.days
+    df["first_treat"] = df["first_treat"].fillna(0).astype(int)
+
+    # Ever-treated flag (useful for debugging / summaries)
+    df["ever_treated"] = df["unit"].isin(TREATED_STATES).astype(int)
+
+    # Time-varying treatment indicator (needed for some placebo helpers)
+    df["treated"] = 0
+    is_treated_state = df["unit"].isin(POLICY_DATES.keys())
+    df.loc[is_treated_state, "treated"] = (
+        df.loc[is_treated_state, "date"] >= df.loc[is_treated_state, "policy_date"]
+    ).astype(int)
+
+    # Keep 'post' as a readability alias (state-specific)
+    df["post"] = df["treated"]
 
     df = df.sort_values(["unit", "time"]).reset_index(drop=True)
 
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(OUT_PATH, index=False)
 
+    # Quick diagnostics
     print(f"Saved: {OUT_PATH}")
-    print(f"Rows: {len(df):,} | Units: {df['unit'].nunique()} | policy_time={policy_time}")
+    print(f"Rows: {len(df):,} | Units: {df['unit'].nunique()} | t0={t0.date()}")
+    print("\nFirst treatment times by unit (days since t0):")
+    print(df.groupby("unit")["first_treat"].first().sort_values())
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@
 Total observations:                  2568
 Treated units:                          4
 Control units:                          4
-Treatment cohorts:                      1
+Treatment cohorts:                      4
 Time periods:                         321
 Control group:                 never_treated
 Base period:                      varying
@@ -15,12 +15,12 @@ Base period:                      varying
 -------------------------------------------------------------------------------------
 Parameter           Estimate    Std. Err.     t-stat      P>|t|   Sig.
 -------------------------------------------------------------------------------------
-ATT                  -6.1909       3.5688     -1.735     0.0561      .
+ATT                   2.0190       0.3701      5.455     0.0020     **
 -------------------------------------------------------------------------------------
 
-95% Confidence Interval: [-12.8069, 0.4251]
+95% Confidence Interval: [1.3246, 2.7135]
 
 Signif. codes: '***' 0.001, '**' 0.01, '*' 0.05, '.' 0.1
 =====================================================================================
 
-Overall ATT: -6.1909246575342465
+Overall ATT: 2.0190288713910762

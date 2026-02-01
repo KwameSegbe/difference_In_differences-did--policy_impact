@@ -11,69 +11,81 @@ The estimator uses "never-treated" states as the control group and employs
 doubly-robust estimation with bootstrap standard errors clustered at the state level.
 """
 from pathlib import Path
-
 import pandas as pd
-from diff_diff import CallawaySantAnna
+import io
+import contextlib
+
+from diff_diff import CallawaySantAnna, SunAbraham
 
 DATA_PATH = Path("data/processed/panel_mobility.csv")
+
+OUTPUT_DIR = Path("output")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+ROBUSTNESS_TXT = OUTPUT_DIR / "robustness_results.txt"
 
 
 def main() -> None:
     """
-    Run the main Callaway-Sant'Anna DiD analysis with placebo tests.
-    
-    Steps:
-    1. Load preprocessed panel data
-    2. Estimate treatment effects using CS estimator
-    3. Run placebo tests (if available in installed version)
-    
-    Raises:
-        FileNotFoundError: If preprocessed data file doesn't exist
-        """
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(
-            f"Missing processed file: {DATA_PATH.resolve()}. Run preprocess.py first."
-        )
+    Run a robustness check comparing two modern Difference-in-Differences estimators:
+    Callaway–Sant’Anna (CS) and Sun–Abraham (SA).
 
+    This function:
+    1. Loads the preprocessed panel dataset
+    2. Estimates the overall Average Treatment Effect on the Treated (ATT)
+       using the Callaway–Sant’Anna staggered DiD estimator
+    3. Re-estimates the same ATT using the Sun–Abraham estimator
+    4. Prints a side-by-side comparison of point estimates and standard errors
+    5. Saves the formatted comparison table to a text file for reproducibility
+
+    Purpose:
+    - Assess robustness of the estimated treatment effect to the choice of
+      DiD estimator
+    - Verify that conclusions are not driven by estimator-specific assumptions
+
+    Output:
+    - A text file containing a comparison table of CS vs. Sun–Abraham estimates
+      (overall ATT and standard errors)
+
+    Raises:
+        FileNotFoundError: If the preprocessed panel data file does not exist
+    """
     df = pd.read_csv(DATA_PATH)
 
-    cs = CallawaySantAnna(
-        control_group="never_treated",
-        estimation_method="dr",
-        n_bootstrap=199,  # keep smaller for robustness runs
-        seed=42,
-        cluster="unit",
+    # Callaway–Sant'Anna (CS)
+    cs = CallawaySantAnna(control_group="never_treated", estimation_method="dr")
+    results_cs = cs.fit(
+        df,
+        outcome="outcome",
+        unit="unit",
+        time="time",
+        first_treat="first_treat",
     )
 
-    results = cs.fit(df, outcome="outcome", unit="unit", time="time", first_treat="first_treat")
-    print("\n=== MAIN ESTIMATE ===")
-    results.print_summary()
+    # Sun–Abraham (SA)
+    sa = SunAbraham(control_group="never_treated")
+    results_sa = sa.fit(
+        df,
+        outcome="outcome",
+        unit="unit",
+        time="time",
+        first_treat="first_treat",
+    )
 
-    # Try built-in placebo utilities if present in your diff-diff version
-    try:
-        from diff_diff import run_all_placebo_tests  # type: ignore
+    # Capture printed output
+    buffer = io.StringIO()
 
-        print("\n=== PLACEBO TESTS ===")
+    with contextlib.redirect_stdout(buffer):
+        cs_name = "Callaway-Sant'Anna"
+        sa_name = "Sun-Abraham"
 
-        # NOTE:
-        # Your installed diff-diff expects something like:
-        # run_all_placebo_tests(outcome, treatment, time, unit, pre_periods, post_periods, ...)
-        # not `run_all_placebo_tests(results)`.
-        #
-        # We try calling it anyway with `results` (some versions support it),
-        # but we DO NOT print raw objects (to avoid huge dict dumps).
-        placebo = run_all_placebo_tests(results)  # may fail on your version
+        print("\nRobustness Check: CS vs Sun-Abraham")
+        print("=" * 60)
+        print(f"{'Estimator':<25} {'Overall ATT':>15} {'SE':>10}")
+        print("-" * 60)
+        print(f"{cs_name:<25} {results_cs.overall_att:>15.4f} {results_cs.overall_se:>10.4f}")
+        print(f"{sa_name:<25} {results_sa.overall_att:>15.4f} {results_sa.overall_se:>10.4f}")
 
-        if hasattr(placebo, "print_summary"):
-            placebo.print_summary()
-        else:
-            print("Placebo ran, but this version returns a raw object (no printable summary).")
+    ROBUSTNESS_TXT.write_text(buffer.getvalue(), encoding="utf-8")
 
-    except Exception:
-        # Keep output clean: no big stack trace / repr(e)
-        print("\nPlacebo helpers not available in your installed diff-diff version.")
-        print("No problem — we can still do manual placebo dates if needed.")
-
-
-if __name__ == "__main__":
-    main()
+    print(f"✅ Robustness results saved to: {ROBUSTNESS_TXT.resolve()}")
