@@ -1,0 +1,4 @@
+Callaway–Sant'Anna Anticipation Robustness (k=0)
+============================================================
+Overall ATT : 0.1388
+SE          : 1.0070

@@ -14,6 +14,7 @@ Output: A table with estimates for periods -28 to +291 showing:
 - Pre-treatment coefficients (should be ~0 and insignificant if parallel trends hold)
 - Post-treatment coefficients (the actual treatment effect at each time)
 """
+
 from pathlib import Path
 import pandas as pd
 
@@ -22,6 +23,7 @@ from diff_diff import CallawaySantAnna
 DATA_PATH = Path("data/processed/panel_mobility.csv")
 OUTPUT_TXT = Path("output/event_study_results.txt")
 OUTPUT_PNG = Path("output/event_study_plot.png")
+OUTPUT_COHORT_PNG = Path("output/cohort_effects_plot.png")
 
 # Optional plotting (only if you have matplotlib + the helper)
 HAS_MATPLOTLIB = False
@@ -36,12 +38,17 @@ try:
 except Exception:
     plot_event_study = None
 
+try:
+    from diff_diff import plot_group_effects  # type: ignore
+except Exception:
+    plot_group_effects = None
+
 
 def main() -> None:
     df = pd.read_csv(DATA_PATH)
 
     cs = CallawaySantAnna(
-        control_group="never_treated",
+        control_group="not_yet_treated",
         estimation_method="dr",
         seed=42,
         cluster="unit",
@@ -72,7 +79,8 @@ def main() -> None:
         ci = eff["conf_int"]
         sig = "*" if eff["p_value"] < 0.05 else ""
         lines.append(
-            f"{e:>12} {eff['effect']:>10.4f} {eff['se']:>10.4f} [{ci[0]:>8.4f}, {ci[1]:>8.4f}] {sig}"
+            f"{e:>12} {eff['effect']:>10.4f} {eff['se']:>10.4f} "
+            f"[{ci[0]:>8.4f}, {ci[1]:>8.4f}] {sig}"
         )
 
     # Save TXT + print to console
@@ -80,7 +88,7 @@ def main() -> None:
     print("\n".join(lines))
     print(f"\n✅ Event study table saved to: {OUTPUT_TXT.resolve()}")
 
-    # ---- Plot and save PNG ----
+    # ---- Plot 1: Event study ----
     if HAS_MATPLOTLIB and plot_event_study is not None:
         fig, ax = plt.subplots(figsize=(10, 6))
         plot_event_study(
@@ -95,7 +103,22 @@ def main() -> None:
         print(f"✅ Event study plot saved to: {OUTPUT_PNG.resolve()}")
         plt.show()
     else:
-        print("\n⚠️ Plot not created (missing matplotlib or diff_diff.plot_event_study).")
+        print("\n⚠️ Event study plot not created (missing matplotlib or diff_diff.plot_event_study).")
+
+    # ---- Plot 2: Effects by cohort (separate figure) ----
+    if HAS_MATPLOTLIB and plot_group_effects is not None:
+        fig2, ax2 = plt.subplots(figsize=(10, 6))
+        plot_group_effects(
+            results=res,
+            ax=ax2,
+            title="Treatment Effects by Cohort",
+        )
+        plt.tight_layout()
+        fig2.savefig(OUTPUT_COHORT_PNG, dpi=200)
+        print(f"✅ Cohort effects plot saved to: {OUTPUT_COHORT_PNG.resolve()}")
+        plt.show()
+    else:
+        print("\n⚠️ Cohort effects plot not created (missing matplotlib or diff_diff.plot_group_effects).")
 
 
 if __name__ == "__main__":

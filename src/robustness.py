@@ -53,7 +53,7 @@ def main() -> None:
     df = pd.read_csv(DATA_PATH)
 
     # Callaway–Sant'Anna (CS)
-    cs = CallawaySantAnna(control_group="never_treated", estimation_method="dr")
+    cs = CallawaySantAnna(control_group="not_yet_treated", estimation_method="dr")
     results_cs = cs.fit(
         df,
         outcome="outcome",
@@ -63,7 +63,7 @@ def main() -> None:
     )
 
     # Sun–Abraham (SA)
-    sa = SunAbraham(control_group="never_treated")
+    sa = SunAbraham(control_group="not_yet_treated")
     results_sa = sa.fit(
         df,
         outcome="outcome",
@@ -89,3 +89,6 @@ def main() -> None:
     ROBUSTNESS_TXT.write_text(buffer.getvalue(), encoding="utf-8")
 
     print(f"✅ Robustness results saved to: {ROBUSTNESS_TXT.resolve()}")
+
+if __name__ == "__main__":
+    main()

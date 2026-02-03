@@ -43,7 +43,7 @@ def main() -> None:
     df = pd.read_csv(DATA_PATH)
 
     cs = CallawaySantAnna(
-        control_group="never_treated",
+        control_group="not_yet_treated",
         estimation_method="dr",
         n_bootstrap=499,
         seed=42,
