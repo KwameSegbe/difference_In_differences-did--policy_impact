@@ -3,5 +3,5 @@ Robustness Check: CS vs Sun-Abraham
 ============================================================
 Estimator                     Overall ATT         SE
 ------------------------------------------------------------
-Callaway-Sant'Anna                 0.1388     1.0070
+Callaway-Sant'Anna                -6.6603     2.9597
 Sun-Abraham                       -3.8821     0.5073
