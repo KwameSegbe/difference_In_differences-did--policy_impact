@@ -53,7 +53,7 @@ def main() -> None:
     df = pd.read_csv(DATA_PATH)
 
     # Callaway–Sant'Anna (CS)
-    cs = CallawaySantAnna(control_group="not_yet_treated", estimation_method="dr")
+    cs = CallawaySantAnna(control_group="not_yet_treated", estimation_method="dr",anticipation=7)
     results_cs = cs.fit(
         df,
         outcome="outcome",

@@ -45,6 +45,7 @@ def main() -> None:
     cs = CallawaySantAnna(
         control_group="not_yet_treated",
         estimation_method="dr",
+        anticipation=7,
         n_bootstrap=499,
         seed=42,
         cluster="unit",
