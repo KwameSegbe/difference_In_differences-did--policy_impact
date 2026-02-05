@@ -1,73 +1,120 @@
 # <h2>Measuring Policy Impact with Difference-in-Differences</h2> #
 <img src="assests/did_pictures.png" alt="Difference-in-Differences (DiD)" width="100%">
 
-# Overview
+## Overview
 
-This repository contains a Difference-in-Differences (DiD) analysis designed to estimate the causal impact of a treatment using panel data. The analysis emphasizes transparency and robustness through event study estimation, cohort-level visualization, and robustness checks across alternative estimators.
+This repository contains a Difference-in-Differences (DiD) analysis designed to estimate the causal impact of a treatment using panel data with staggered adoption. The goal of the project is to produce transparent, interpretable, and robust causal estimates while explicitly validating assumptions through event study analysis and robustness checks.
 
-# Methodology
+The analysis prioritizes methodological rigor, clear documentation, and cautious interpretation of results.
 
-The primary estimation strategy follows a modern DiD framework that accounts for staggered treatment adoption. The analysis proceeds in three main stages:
+## Methodology
+Main Estimation Strategy
 
-# Main DiD Estimation
-Estimation of average treatment effects using a cohort-aware DiD estimator.
+The primary estimation approach follows a modern DiD framework that accounts for staggered treatment timing and heterogeneous treatment effects across cohorts. Average Treatment Effects on the Treated (ATT) are estimated using a cohort-aware estimator.
 
-# Event Study Analysis
-Dynamic treatment effects are estimated relative to time since treatment adoption to:
+## Event Study Analysis
 
-Assess pre-treatment trends
+An event study specification is used to estimate dynamic treatment effects relative to time since treatment adoption. This serves multiple purposes:
 
-Evaluate post-treatment dynamics
+Assessing pre-treatment trends (parallel trends diagnostics)
 
-Support interpretation of the main estimator
+Evaluating the evolution and persistence of post-treatment effects
 
-The full event study output is included as a text file for transparency and auditability 
+Supporting interpretation of the main DiD estimator
 
-# event_study_results
+The full event study output is included as a text file for transparency and auditability:
 
-.
-# Robustness Checks
-Results are compared across alternative DiD estimators, including Callaway–Sant’Anna and Sun–Abraham specifications, to assess sensitivity to modeling assumptions. Overall ATT estimates from these approaches are directionally consistent with the main results 
+event_study_results.txt 
 
-# robustness_results
+event_study_results
 
-.
+Robustness Checks
 
-# Visualizations
+To assess sensitivity to estimator choice and identifying assumptions, results are compared across alternative DiD estimators:
 
-The current set of visualizations includes:
+Callaway–Sant’Anna
 
-Cohort-level visualizations to highlight heterogeneity across treatment cohorts
+Sun–Abraham
+
+These checks help evaluate whether the main findings are driven by modeling choices or remain directionally stable across specifications. Summary robustness results are provided in:
+
+robustness_results.txt 
+
+robustness_results
+
+## Visualizations
+
+The current visualizations included in the analysis are designed to support both diagnostics and interpretability:
+
+Cohort-level visualizations highlighting heterogeneity across treatment cohorts
 
 Full-sample visualizations summarizing aggregate treatment effects
 
-Event study output (TXT) for detailed inspection of dynamic effects over time
+Event study output (TXT) providing detailed estimates by event time
 
-These visualizations are intended to support both diagnostic checks and interpretability.
+Together, these views allow inspection of dynamic effects, cohort behavior, and overall trends.
 
-# Results Summary
+# Results
+## Main Findings
 
-Event study estimates and robustness checks are broadly consistent with the main DiD estimator.
+The estimated Average Treatment Effect on the Treated (ATT) is negative under the primary DiD specification.
 
-Post-treatment effects appear persistent over time.
+Dynamic treatment effects from the event study indicate persistent post-treatment impacts relative to the treatment adoption period.
 
-Some pre-treatment coefficients show variability, underscoring the importance of cautious interpretation.
+Estimated effects are directionally consistent across alternative DiD estimators.
 
-# Interpretation Notes
+## Event Study Results
 
-While results are directionally consistent across estimators and diagnostics, they should be interpreted with caution due to the relatively limited length of historical pre-treatment data. A longer pre-treatment period would strengthen confidence in parallel trends and dynamic estimates.
+Post-treatment coefficients are consistently negative and statistically significant across most post-adoption periods.
 
-# Next Steps
+Event-time estimates suggest that treatment effects persist rather than dissipate quickly.
 
-Planned extensions include:
+Pre-treatment coefficients exhibit some variability, highlighting the importance of cautious interpretation.
 
-Additional robustness checks (placebo tests, alternative control groups)
+## Detailed event-time estimates are available in:
 
-Expanded visualization of dynamic effects
+event_study_results.txt 
 
-Sensitivity analysis around pre-treatment window length
+event_study_results
 
+## Robustness Results
 
+Robustness checks comparing alternative estimators show:
 
+Callaway–Sant’Anna Overall ATT ≈ −6.66
 
+Sun–Abraham Overall ATT ≈ −3.88
 
+While magnitudes differ, both estimates are directionally aligned, supporting the robustness of the main findings:
+
+robustness_results.txt 
+
+robustness_results
+
+Interpretation Notes
+
+While the event study and robustness checks are broadly consistent with the main estimator results, findings should be interpreted with caution. The available historical pre-treatment period is relatively limited, which constrains the strength of parallel trends validation and increases uncertainty around dynamic estimates.
+
+Accordingly, results are presented as evidence of directional and persistent effects rather than definitive causal magnitudes.
+
+## Next Steps
+
+Planned extensions to the analysis include:
+
+Additional robustness checks (e.g., placebo tests, alternative control group definitions)
+
+Sensitivity analysis around the length of the pre-treatment window
+
+Expanded visualization of dynamic treatment effects
+
+## Repository Structure
+
+event_study_results.txt — Full event study output by event time
+
+robustness_results.txt — Summary robustness comparisons across estimators
+
+Visualization outputs — Cohort-level and full-sample plots
+
+## Final Note
+
+This project emphasizes responsible causal inference: validating assumptions, surfacing uncertainty, and separating estimation from interpretation. The structure and documentation are designed to support reproducibility, review, and clear communication of results.
