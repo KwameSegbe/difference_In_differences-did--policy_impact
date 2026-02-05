@@ -40,9 +40,8 @@ No evidence of reversal or short-lived impact
 
 This pattern indicates that the policy changed behavior in a durable way rather than producing a brief shock.
 
-Event study: Effect on workplace mobility over time since adoption
-(output/event_study_plot.png)
-![Event study: Effect of stay-at-home orders on workplace mobility over time](../output/event_study.png)
+## Event study: Effect on workplace mobility over time since adoption
+![Event study: Effect of stay-at-home orders on workplace mobility over time](../output/event_study_plot.png)
 Source: Event study estimates 
 
 event_study_results
@@ -55,9 +54,9 @@ While the size of the reduction varies by state and timing, all treated groups s
 
 This reduces the risk that results are driven by a single early- or late-adopting state.
 
-📌 Insert Figure Here:
-Treatment effects by adoption cohort
-(output/cohort_effects_plot.png)
+## Treatment effects by adoption cohort
+![Treatment effects by adoption cohort](../output/cohort_effects_plot.png)
+
 
 Validity Check: Pre-Treatment Trends
 
@@ -67,9 +66,9 @@ There is no visible divergence prior to policy adoption, which supports using un
 
 This check matters because it shows the estimated effects are unlikely to be driven by pre-existing differences.
 
-📌 Insert Figure Here:
-Parallel trends check (pre-treatment only)
-(output/parallel_trends.png)
+## Parallel trends check (pre-treatment only)
+![Parallel trends check before policy adoption](../output/parallel_trends.png)
+
 
 Robustness Checks
 
