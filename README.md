@@ -26,11 +26,10 @@ The full event study output is included as a text file for transparency and audi
 # event_study_results
 
 .
-
 # Robustness Checks
 Results are compared across alternative DiD estimators, including Callaway–Sant’Anna and Sun–Abraham specifications, to assess sensitivity to modeling assumptions. Overall ATT estimates from these approaches are directionally consistent with the main results 
 
-robustness_results
+# robustness_results
 
 .
 
@@ -67,6 +66,7 @@ Additional robustness checks (placebo tests, alternative control groups)
 Expanded visualization of dynamic effects
 
 Sensitivity analysis around pre-treatment window length
+
 
 
 
