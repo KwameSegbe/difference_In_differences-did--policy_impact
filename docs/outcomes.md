@@ -42,12 +42,9 @@ This pattern indicates that the policy changed behavior in a durable way rather 
 
 ## Event study: Effect on workplace mobility over time since adoption
 ![Event study: Effect of stay-at-home orders on workplace mobility over time](../output/event_study_plot.png)
-Source: Event study estimates 
-
 event_study_results
 
-Consistency Across Cohorts
-
+## Consistency Across Cohorts
 States adopted stay-at-home orders at different times, but the direction of the effect is consistent across cohorts.
 
 While the size of the reduction varies by state and timing, all treated groups show a drop in workplace mobility following adoption.
@@ -70,8 +67,7 @@ This check matters because it shows the estimated effects are unlikely to be dri
 ![Parallel trends check before policy adoption](../output/parallel_trends.png)
 
 
-Robustness Checks
-
+## Robustness Checks
 Two additional checks were run to test whether the result depends on modeling choices:
 
 Alternative estimators produce similar negative effects
@@ -80,18 +76,7 @@ Allowing for anticipation (people adjusting behavior before official dates) does
 
 While point estimates differ slightly, the direction and interpretation remain the same.
 
-Source: Robustness summaries
-
-
-robustness_results
-
-
-
-
-cs_anticipation_7
-
-Practical Takeaway
-
+## Practical Takeaway
 From a policy perspective, stay-at-home orders were effective at reducing workplace movement, and they did so quickly and persistently.
 
 From an analytics perspective, this project shows how staggered policy timing can be used to separate policy effects from broader trends during a rapidly changing period.
